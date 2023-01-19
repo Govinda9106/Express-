@@ -1,16 +1,16 @@
 const fs = require('fs');
 const path = require('path');
+const { promisify } = require('util');
 
 const validator = {};
 
-validator.errorLogger = (err, req, res, next) =>{
+//promisifying append file in below linw by calling promisify
+const appendFile = promisify( fs.appendFile );
+
+validator.errorLogger =  async (err, req, res, next) =>{
     if(err){
         const data = `message: ${ err.message } - path: ${err.path}\n`
-        fs.appendFile('errorlog.log', data, (err) => {
-            if(err){
-                console.log('Logging Failed');
-            }
-        })
+        await appendFile('errorlog.log', data);
         res.status(err.status || 500).json({ message: err.message, status: 'Oops!' })
     }
 };
